@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d346855af6fedc7488fea4c56ebb7643, type: 3}
+  m_Name: PlayerBody
+  m_EditorClassIdentifier: 
+  SurfaceName: PlayerBody
+  bulletImpact: {fileID: 1036925697551712, guid: a845e59c374ae0240812749e46f13033, type: 3}
+  footSteps:
+  - {fileID: 8300000, guid: c665a4ea7b2ec23499ca1b4223f805aa, type: 3}
+  - {fileID: 8300000, guid: e30945f06d719c14db762f03fb568fe9, type: 3}
+  - {fileID: 8300000, guid: c0d1c417358d6b84f98ac39648a9716c, type: 3}
+  - {fileID: 8300000, guid: b65ffd1471f95234bb85fd2231345fa3, type: 3}
+  - {fileID: 8300000, guid: 2a190e35c1b5b3047bf33b390a75afd6, type: 3}
+  landSounds:
+  - {fileID: 8300000, guid: 55d0ab42a32220e4abc7d84563cc20ab, type: 3}
+  fallImpactsSounds:
+  - {fileID: 8300000, guid: 764ae730b313a4548a0b9cb6016e750d, type: 3}
