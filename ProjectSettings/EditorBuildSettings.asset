@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Zombie Game/Scenes/TestMap.unity
+    path: Assets/EternalVision/FPSSystem/Scenes/TestMap.unity
     guid: f1b0b82888c61544ba69ab26a56c4595
   m_configObjects: {}
