@@ -37,14 +37,20 @@ public class NetworkMovementHandler : PlayerMovements
     {
         base.OnStartNetwork();
         if (base.TimeManager != null)
+        {
             base.TimeManager.OnTick += TimeManager_OnTick;
+        }
+
     }
 
     public override void OnStopNetwork()
     {
         base.OnStopNetwork();
         if (base.TimeManager != null)
+        {
             base.TimeManager.OnTick -= TimeManager_OnTick;
+        }
+
     }
 
     public override void OnStartClient()
@@ -74,13 +80,14 @@ public class NetworkMovementHandler : PlayerMovements
         }
         else if (_localPlayerActionData.Ownership.isServer || GameManager.instance.networkContext.Ownership.isServer)
         {
-            float rotY = transform.eulerAngles.y;
-
             Replicate(default, true);
             ReconcileData rd = new ReconcileData()
             {
                 position = transform.position,
-                verticalVelocity = _currentVerticalVelocity
+                moveSpeed = _currentMoveSpeed,
+                verticalVelocity = _currentVerticalVelocity,
+                stamina = _currentStamina,
+                movementInputs = _movementInputs
             };
             Reconcile(rd, true);
         }
@@ -107,7 +114,7 @@ public class NetworkMovementHandler : PlayerMovements
         _networkInputs.Rotation = rotY;
 
         //Update Animator 
-        _fullBodyAnimatorHandler.SetMovementsValues(_inputHandler.GetPlayerLocalInputs().moveInputs, _characterController.velocity.magnitude);
+       // _fullBodyAnimatorHandler.SetMovementsValues(_inputHandler.GetPlayerLocalInputs().moveInputs, _characterController.velocity.magnitude);
     }
 
 
@@ -120,26 +127,38 @@ public class NetworkMovementHandler : PlayerMovements
         isLockController = _fullBodyAnimatorHandler.CheckForLockedMovementBool();
 
         //Update grounded, and set if grounded changed.
+
         SetIsGrounded(replaying, out _groundedChanged);
         CheckIfWeAreFalling(replaying);
 
-   
 
-        ApplyGravity(ref _currentVerticalVelocity, delta);
+
+        ApplyGravity(ref _currentVerticalVelocity.y, delta);
         DampenExternalForces(delta);
         //When grounded use a different velocity. This gives a better feel to the motor.
         SetGroundedVelocity(delta, asServer, replaying);
         SetStepOffset();
 
+
+
         Move(data.moveInputs, delta, _isRunning);
         Jump(data.jump, _jumpImpuls, replaying);
 
+        CalculateStamina((float)base.TimeManager.TickDelta);
 
         if (!defaultData && (asServer || !replaying))
             transform.eulerAngles = new Vector3(transform.eulerAngles.x, data.Rotation, transform.eulerAngles.z);
 
-        if(_isRunning != data.sprintHold) _isRunning = data.sprintHold;
-        if(_isCrouch != data.sprintHold) _isCrouch = data.sprintHold;
+        if (_isRunning != data.sprintHold)
+        {
+            _isRunning = data.sprintHold;
+            _isCrouch = false;
+        }
+        if (_isCrouch != data.crouch)
+        {
+            _isCrouch = data.crouch;
+            ToogleCrouch(_isCrouch);
+        }
         if(_isWalkStealth != data.stealthWalk) _isWalkStealth = data.stealthWalk;
 
         //Local Value
@@ -151,11 +170,6 @@ public class NetworkMovementHandler : PlayerMovements
         if (_itemMotionAnimation != null) _itemMotionAnimation.SetRun(_isRunning);
 
 
-        if (asServer)
-        {
-            //Update Animator Over Network
-            ServerUpdateMovementsAnimations(data);
-        }
           
     }
 
@@ -166,17 +180,9 @@ public class NetworkMovementHandler : PlayerMovements
         //even if there is no de-synchronization.
         transform.position = recData.position;
         _currentVerticalVelocity = recData.verticalVelocity;
-    }
-
-
-    public override void Jump(bool isJump, float jumpForce, bool isReplaying)
-    {
-        base.Jump(isJump, jumpForce, isReplaying);
-    }
-
-    public override void CheckIfWeAreFalling(bool replaying)
-    {
-        base.CheckIfWeAreFalling(replaying);
+        _currentStamina = recData.stamina;
+        _currentMoveSpeed = recData.moveSpeed;
+        _movementInputs = recData.movementInputs;
     }
 
 
@@ -195,7 +201,7 @@ public class NetworkMovementHandler : PlayerMovements
 
     public override void ToogleSpeed(bool oldValue, bool newValue, bool asServer)
     {
-        if (_isRunning && CanPressSprint())
+        if (_isRunning)
         {
             _maxAcceleration = _runSpeed;
         }
@@ -206,12 +212,16 @@ public class NetworkMovementHandler : PlayerMovements
         else if (_isCrouch)
         {
             _maxAcceleration = _crouchSpeed;
+        }else if (_localPlayerActionData.onLadder)
+        {
+            _maxAcceleration = _onLadderSpeed;
         }
         else
         {
             _maxAcceleration = _walkSpeed;
         }
 
+        _fullBodyAnimatorHandler.SetCrouch(_isCrouch);
         _fullBodyAnimatorHandler.SetRun(_isRunning);
         _fullBodyAnimatorHandler.SetStealthWalk(_isWalkStealth);
     }
@@ -234,20 +244,132 @@ public class NetworkMovementHandler : PlayerMovements
         _fullBodyAnimatorHandler.SetPitch(pitch);
     }
 
-    [Server(Logging = LoggingType.Off)]
-    private void ServerUpdateMovementsAnimations(InputData data)
-    {
-        _fullBodyAnimatorHandler.SetMovementsValues(data.moveInputs, _characterController.velocity.magnitude);
-    }
+
 
     public override void TakeFallDamage()
     {
         base.TakeFallDamage();
     }
 
+
+    public override void SetPlayerLadder(Vector3 forwardDirection, Vector3 startPos, LadderScript ladder)
+    {
+        if (!CanClimbLadder()) return;
+        _currentLadder = ladder;
+        Debug.Log("On Ladder Now");
+        ServerSetPlayerLadder(startPos, forwardDirection);
+        SetLadderAction(startPos, forwardDirection);
+    }
+
+
+    private void SetLadderAction(Vector3 startPos, Vector3 rotation)
+    {
+        if (!CanClimbLadder()) return;
+
+        _fullBodyAnimatorHandler.SetOnLadder(true);
+        _localPlayerActionData.onLadder = true;
+        _playerInventoryHandler.HostlerItem();
+
+        StartCoroutine(LadderTransition(true, startPos, rotation));
+
+        ToogleSpeed(true, true, base.IsServer);
+    }
+
+    [ServerRpc]
+    private void ServerSetPlayerLadder(Vector3 startPos, Vector3 rotation)
+    {
+        if (base.IsServer)
+        {
+            ObserverSetPlayerLadder(startPos, rotation);
+            SetLadderAction(startPos, rotation);
+        }
+    }
+
+    [ObserversRpc]
+    private void ObserverSetPlayerLadder(Vector3 startPos, Vector3 rotation)
+    {
+        if (base.IsOwner || base.IsServer) return;
+        Debug.Log("Observers On Ladder Now");
+        SetLadderAction(startPos, rotation);
+    }
+
+    public override void ForceExitPlayerLadder()
+    {
+        if (base.IsOwner)
+            ServerForceExitLadder();
+    }
+
+
+    [ServerRpc]
+    private void ServerForceExitLadder()
+    {
+        if (base.IsServer)
+        {
+            ObserverForceExitLadder();
+            ForceExitLadderAction();
+        }
+    }
+
+    [ObserversRpc]
+    private void ObserverForceExitLadder()
+    {
+        if (base.IsServer) return;
+        ForceExitLadderAction();
+    }
+
+    private void ForceExitLadderAction()
+    {
+        if (_currentLadder != null)
+        {
+            _currentLadder = null;
+        }
+
+
+        _playerInventoryHandler.UnhostlerItem();
+        _fullBodyAnimatorHandler.SetOnLadder(false);
+        _localPlayerActionData.onLadder = false;
+        _characterController.enabled = true;
+        _characterController.radius = _defaultCharacterControllerRadius;
+
+        ToogleSpeed(true, true, base.IsServer);
+    }
+
+
+    public override void AnimatedExitPlayerLadder(Vector3 forwardDirection, Vector3 targetPos)
+    {
+        if (base.IsOwner)
+            ServerAnimatedExitLadder(forwardDirection, targetPos);
+    }
+
+    [ServerRpc]
+    private void ServerAnimatedExitLadder(Vector3 forwardDirection, Vector3 targetPos)
+    {
+        if (base.IsServer)
+        {
+            ObserverAnimatedExitLadder(forwardDirection, targetPos);
+            AnimatedExitLadderAction(forwardDirection, targetPos);
+        }
+    }
+
+    [ObserversRpc]
+    private void ObserverAnimatedExitLadder(Vector3 forwardDirection, Vector3 targetPos)
+    {
+        if (base.IsServer) return;
+        AnimatedExitLadderAction(forwardDirection, targetPos);
+    }
+
+    private void AnimatedExitLadderAction(Vector3 forwardDirection, Vector3 targetPos)
+    {
+        _playerInventoryHandler.UnhostlerItem();
+
+        _fullBodyAnimatorHandler.SetOnLadder(false);
+        _fullBodyAnimatorHandler.PlayLadderExit(true);
+
+        StartCoroutine(LadderTransition(false, targetPos, forwardDirection));
+    }
+
     public override void PlayLandSound(bool isFallWithDamage)
     {
-        PooledLandSound(isFallWithDamage);
         ObserversPlayLandSound(isFallWithDamage);
     }
 
@@ -270,7 +392,6 @@ public class NetworkMovementHandler : PlayerMovements
     [ObserversRpc]
     private void ObserversPlayLandSound(bool isFallWithDamage)
     {
-        if (base.IsOwner) return;
         PooledLandSound(isFallWithDamage);
     }
 }

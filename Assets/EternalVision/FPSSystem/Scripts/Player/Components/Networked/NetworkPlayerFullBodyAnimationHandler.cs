@@ -32,9 +32,12 @@ public class NetworkPlayerFullBodyAnimationHandler : PlayerFullBodyAnimationHand
 
     public override void SmoothAnimations()
     {
-        smoothedVar_movements = Vector3.Lerp(smoothedVar_movements, v_movements, _animationSmoothSpeed * Time.deltaTime);
-        smoothedVar_velocity = Mathf.Lerp(smoothedVar_velocity, v_velocity, _animationSmoothSpeed * Time.deltaTime);
+        //smoothedVar_movements = Vector3.Lerp(smoothedVar_movements, v_movements, _animationSmoothSpeed * Time.deltaTime);
+        //smoothedVar_velocity = Mathf.Lerp(smoothedVar_velocity, v_velocity, _animationSmoothSpeed * Time.deltaTime);
         soothedVar_pitch = Mathf.Lerp(soothedVar_pitch, v_pitch, _animationSmoothSpeed * Time.deltaTime);
+
+        smoothedVar_movements = v_movements;
+        smoothedVar_velocity = v_velocity;
     }
 
     public void SetPitch(float pt)

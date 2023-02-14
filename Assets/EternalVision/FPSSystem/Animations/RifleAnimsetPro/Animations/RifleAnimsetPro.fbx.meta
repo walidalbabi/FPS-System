@@ -877,7 +877,7 @@ ModelImporter:
       name: Rifle_Idle
       takeName: Rifle_Idle
       internalID: 0
-      firstFrame: 193
+      firstFrame: 0
       lastFrame: 194
       wrapMode: 0
       orientationOffsetY: 0
@@ -3772,7 +3772,7 @@ ModelImporter:
       hasAdditiveReferencePose: 0
       loopTime: 1
       loopBlend: 0
-      loopBlendOrientation: 0
+      loopBlendOrientation: 1
       loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1

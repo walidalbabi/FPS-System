@@ -78,7 +78,7 @@ public abstract class WeaponBehaviour : PlayerItem
     }
 
     public abstract void OnEquip();
-    public abstract void OnUnEquip();
+    public abstract void OnUnEquip(bool isChangingItem);
 
     public virtual void Reload() { }
     public virtual void Shoot() { }

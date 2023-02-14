@@ -1,4 +1,5 @@
 using FishNet;
+using FishNet.Connection;
 using FishNet.Managing.Timing;
 using FishNet.Object;
 using System.Collections;
@@ -143,7 +144,7 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
 
                 /* Apply 8% of the step per frame. You can adjust
                  * this number to whatever feels good. */
-                float step = (_bullets[i].passedTime * 0.08f);
+                float step = (_bullets[i].passedTime * 0.15f);
                 _bullets[i].passedTime -= step;
 
                 /* If the remaining time is less than half a delta then
@@ -229,10 +230,19 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
         Hitbox hitbox = hit.collider.GetComponent<Hitbox>();
         if (hitbox != null)
         {
-            Event_OnHitTarget(_currentWeapon);
+          
             if (GameManager.instance.networkContext.Ownership.isServer)
+            {
                 hitbox.Hit(_damage, _currentWeapon.playerInventoryHandler.gameObject);
+                TargetOnHitEnemy(base.Owner);
+            }
         }
+    }
+
+    [TargetRpc]
+    private void TargetOnHitEnemy(NetworkConnection target)
+    {
+        Event_OnHitTarget(_currentWeapon);
     }
 
     [ServerRpc]

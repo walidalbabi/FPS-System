@@ -133,13 +133,12 @@ MonoBehaviour:
   _mainCamera: {fileID: 2042500578087259106}
   _weaponCamera: {fileID: 2042500578702852069}
   _fpsHandParent: {fileID: 3358904406997264566}
-  _teleportDistance: 1.5
-  _smoothedPositionalTime: 0.1
+  _teleportDistance: 2.5
+  _smoothedPositionalTime: 0.2
   _rotationFollowSpeed: 20
   _rotationFollowSpeedMultiplayer: 1
-  _positionalSmoothingRateMin: 15
-  _positionalSmoothingRateMax: 60
-  _playerHud: {fileID: 3049508870611289301, guid: 6fe8ab77b6a19de48a43dbb059167be4, type: 3}
+  _positionalSmoothingRateMin: 50
+  _positionalSmoothingRateMax: 100
 --- !u!1 &2042500578702852070
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,8 +293,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _active: 1
   _runningBob:
-    _amplitude: 0.0015
-    _frequency: 25
+    _amplitude: 0.0033
+    _frequency: 20
   _norrmalBob:
     _amplitude: 0.0001
     _frequency: 5.1

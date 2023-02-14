@@ -18,11 +18,15 @@ public struct InputData
     public bool LeftClick;
     public bool RightClick;
     public bool reload;
+    public bool interact;
 }
 
 public struct ReconcileData
 {
     public Vector3 position;
     public Quaternion rotation;
-    public float verticalVelocity;
+    public Vector3 verticalVelocity;
+    public Vector3 movementInputs;
+    public float moveSpeed;
+    public float stamina;
 }

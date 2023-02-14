@@ -23,8 +23,12 @@ public class MeleeSwipeable : SwipeableItemClass
         }
     }
 
-    public override void OnUnEquip()
+    /// <summary>
+    /// is changing item true, if we need to enable the next selected item after disabling current one
+    /// </summary>
+    /// <param name="isChangingItem"></param>
+    public override void OnUnEquip(bool isChangingItem)
     {
-        _currentWeapon.OnUnEquip();
+        _currentWeapon.OnUnEquip(isChangingItem);
     }
 }

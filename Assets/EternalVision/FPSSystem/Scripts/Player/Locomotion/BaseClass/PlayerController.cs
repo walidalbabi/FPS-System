@@ -7,11 +7,19 @@ using UnityEngine;
 
 public abstract class PlayerController : NetworkBehaviour
 {
+
+    [SerializeField] protected LayerMask _interactionLayer;
+    [SerializeField] protected float _interactionDistance = 2f;
+
     protected PlayerInventoryHandler _playerInventoryHandler;
     protected NetworkPlayerFullBodyAnimationHandler _fullBodyAnimatorHandler;
     protected LocalPlayerData _localPlayerActionData;
+    protected PlayerMovements _playerMovements;
     protected InputHandler _inputHandler;
     protected InputData _networkInputs;
+
+
+    protected Vector2 _screenRay;
 
     public static event Action<Camera> OnCameraTargetChanged;
     public static event Action<GameObject> OnPlayerAvailbleInScene;
@@ -21,7 +29,11 @@ public abstract class PlayerController : NetworkBehaviour
         _playerInventoryHandler = GetComponent<PlayerInventoryHandler>();
         _fullBodyAnimatorHandler = GetComponent<NetworkPlayerFullBodyAnimationHandler>();
         _localPlayerActionData = GetComponent<LocalPlayerData>();
+        _playerMovements = GetComponent<PlayerMovements>();
         _inputHandler = GetComponent<InputHandler>();
+
+
+        _screenRay = new Vector2(Screen.width / 2f, Screen.height /2f);
     }
 
     public virtual void GetInputs()
@@ -29,6 +41,7 @@ public abstract class PlayerController : NetworkBehaviour
         _networkInputs = default;
         _networkInputs = _inputHandler.GetPlayerLocalInputs();
         _inputHandler.NeededResetCashedInputsReload();
+        _inputHandler.NeededResetCashedInputsInteract();
     }
 
 
@@ -156,6 +169,42 @@ public abstract class PlayerController : NetworkBehaviour
         _playerInventoryHandler.currentSelectedPlayerItem.OnPressReloadBtn();
     }
 
+
+    public virtual void CheckForInteractions()
+    {
+        if (!CanInteract()) return;
+
+        Ray ray = Camera.main.ScreenPointToRay(_screenRay);
+        RaycastHit hit;
+        if(Physics.Raycast(ray, out hit, _interactionDistance, _interactionLayer))
+        {
+            if(hit.collider != null)
+            {
+                if (_networkInputs.interact)
+                {
+                    var interactive = hit.collider.GetComponent<I_Interactable>();
+                    if (interactive != null)
+                    {
+                        Debug.Log("Found a Interactor");
+                        //interact
+                        interactive.Interact(this.gameObject);
+                    }
+                }
+            }
+        }
+    }
+
+    public virtual void CheckForExitCurrentLadder()
+    {
+        if (_networkInputs.interact)
+        {
+            if (_localPlayerActionData.onLadder)
+            {
+                _playerMovements.ForceExitPlayerLadder();
+            }
+        }
+    }
+     
     public void Event_OnCameraTargetChanged(GameObject cam)
     {
         OnCameraTargetChanged?.Invoke(cam.GetComponent<Camera>());
@@ -172,6 +221,7 @@ public abstract class PlayerController : NetworkBehaviour
         if (_localPlayerActionData.isReloading) return false;
         if (_localPlayerActionData.isDead) return false;
         if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -181,6 +231,7 @@ public abstract class PlayerController : NetworkBehaviour
         if (_localPlayerActionData.isReloading) return false;
         if (_localPlayerActionData.isDead) return false;
         if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -190,6 +241,7 @@ public abstract class PlayerController : NetworkBehaviour
         if (_localPlayerActionData.isReloading) return false;
         if (_localPlayerActionData.isDead) return false;
         if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -198,6 +250,7 @@ public abstract class PlayerController : NetworkBehaviour
         if (_localPlayerActionData.isReloading) return false;
         if (_localPlayerActionData.isDead) return false;
         if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -208,9 +261,27 @@ public abstract class PlayerController : NetworkBehaviour
         if (_localPlayerActionData.isFiring) return false;
         if (_localPlayerActionData.isDead) return false;
         if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
 
+    public bool CanInteract()
+    {
+        if (_localPlayerActionData.isReloading) return false;
+        if (_localPlayerActionData.isFiring) return false;
+        if (_localPlayerActionData.isDead) return false;
+        if (_localPlayerActionData.isSwitchingItem) return false;
+        if (_localPlayerActionData.onLadder) return false;
+
+        return true;
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(Camera.main.ScreenPointToRay(_screenRay));
+    }
 
 }

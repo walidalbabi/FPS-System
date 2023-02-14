@@ -1,5 +1,6 @@
 using FishNet.Managing.Logging;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,8 +8,8 @@ using UnityEngine;
 
 
 public abstract class PlayerMovements : NetworkBehaviour
-{    
-    
+{
+
     //Serilized 
     [Header("Physics Settings")]
     [Tooltip("How much to dampen external forces by per fixed update. This is applied at the beginning of fixed update.")]
@@ -27,7 +28,13 @@ public abstract class PlayerMovements : NetworkBehaviour
     [SerializeField] protected float _walkSpeed = 3.5f;
     [SerializeField] protected float _runSpeed = 5f;
     [SerializeField] protected float _crouchSpeed = 2f;
+    [SerializeField] protected float _onLadderSpeed = 2f;
     [SerializeField] protected float _accelerationSpeed = 0.3f;
+    [SerializeField] private float _smoothSpeed = 5;
+    [SerializeField] private float _smoothDropSpeed = 8;
+    [Header("Crouch")]
+    [SerializeField] private float _crouchHeight = 1.2f;
+    [SerializeField] private float _crouchTransitionSpeed = 3f;
     [Space]
     [Header("Stamina Settings")]
     [SerializeField] protected float _maxStamina = 100f;
@@ -47,11 +54,14 @@ public abstract class PlayerMovements : NetworkBehaviour
     //Private Members
     private Vector3 _lookDirection;
     private Vector3 _externalForces;
+    protected Vector2 _movementInputs;
     private bool _wasFalling;
     private bool _wasGrounded;
     private bool _isGrounded;
     private float _startFallPos;
     private float _fallingTime;
+    private Coroutine _crouchCoroutine;
+    public LadderScript _currentLadder;
 
     private bool _isFalling { get { return !_isGrounded && _characterController.velocity.y < 0; } }
 
@@ -63,13 +73,15 @@ public abstract class PlayerMovements : NetworkBehaviour
     protected ItemMotionAnimations _itemMotionAnimation;
 
     //Protected Members
-    protected float _currentVerticalVelocity;
+    protected Vector3 _currentVerticalVelocity;
     protected float _pitch;
     protected float _yaw;
     protected float _currentMoveSpeed;
     protected float _maxAcceleration;
     protected float _currentStamina;
-    protected bool  _canRunAfterStamina;
+    protected bool _canRunAfterStamina;
+    protected float _defaultPlayerHeight;
+    protected float _defaultCharacterControllerRadius;
 
 
 
@@ -114,6 +126,8 @@ public abstract class PlayerMovements : NetworkBehaviour
         _fullBodyAnimatorHandler = GetComponent<NetworkPlayerFullBodyAnimationHandler>();
         _playerInventoryHandler = GetComponent<PlayerInventoryHandler>();
 
+        _defaultPlayerHeight = _characterController.height;
+        _defaultCharacterControllerRadius = _characterController.radius;
         _currentStamina = _maxStamina;
         _defaultStepOffset = _characterController.stepOffset;
 
@@ -135,22 +149,10 @@ public abstract class PlayerMovements : NetworkBehaviour
 
     public virtual void Update()
     {
-        if (_localPlayerActionData.isRunning)
-        {
-            //Calcculate Stamina  Depletion
-            if (_currentStamina > 0)
-                _currentStamina -= Time.deltaTime * _staminaDepletionRate;
-            else _canRunAfterStamina = false;
-        }
-        else
-        {
-            //Caclculate Stamina Recovery
-            if (!_isGrounded) return;
-            if (_currentStamina < _maxStamina) _currentStamina += Time.deltaTime * _staminaRecoveryRate;
-            if (_currentStamina > _maxStamina / 3) _canRunAfterStamina = true; // Can run again after regenerate 3/4 of the stammina
-        }
+
 
     }
+
 
     public virtual void Move(Vector3 moveDir, float time, bool isRunning)
     {
@@ -161,24 +163,59 @@ public abstract class PlayerMovements : NetworkBehaviour
             if (!_canMoveInAllDirectionsWhileSprinting)     //Can't move Left/right and backward while Running
             {
                 moveDir.x = 0;
-                moveDir.y = 1;
+            }
+            moveDir.y = 1;
+        }
+
+        if (!_localPlayerActionData.onLadder)
+        {
+            if (moveDir.x != 0)
+                _movementInputs.x = Mathf.Lerp(_movementInputs.x, moveDir.x, time * _smoothSpeed);
+            else
+            {
+                _movementInputs.x = Mathf.Lerp(_movementInputs.x, moveDir.x, time * _smoothDropSpeed);
+                if (_movementInputs.x > -0.1f && _movementInputs.x < 0.1f) _movementInputs.x = 0f;
+            }
+
+            if (moveDir.y != 0)
+                _movementInputs.y = Mathf.Lerp(_movementInputs.y, moveDir.y, time * _smoothSpeed);
+            else
+            {
+                _movementInputs.y = Mathf.Lerp(_movementInputs.y, moveDir.y, time * _smoothDropSpeed);
+                if (_movementInputs.y > -0.1f && _movementInputs.y < 0.1f) _movementInputs.y = 0f;
             }
         }
+        else
+        {
+            _movementInputs = moveDir;
+        }
 
-        Vector3 moveInputs = transform.forward * moveDir.y + transform.right * moveDir.x;
+       // _movementInputs = moveDir;
+        Vector3 moveInputs = transform.forward * _movementInputs.y + transform.right * _movementInputs.x;
 
+
+        if (_localPlayerActionData.onLadder)
+        {
+            moveInputs = transform.up * _movementInputs.y;
+        }
+
+
+        //if (moveInputs.magnitude > 0.1f)
+        //{
+        //    if (_currentMoveSpeed < _maxAcceleration)
+        //        _currentMoveSpeed += _accelerationSpeed * time;
+        //    else _currentMoveSpeed -= _accelerationSpeed * 3f * time;
+        //}
+        //else if (moveInputs.magnitude <= 0.1f)
+        //{
+        //    if (_currentMoveSpeed >= 0) _currentMoveSpeed = 0;
+        //    //_currentMoveSpeed -= _accelerationSpeed * time;
+        //}
 
         if (moveInputs.magnitude > 0.1f)
-        {
-            if (_currentMoveSpeed < _maxAcceleration)
-                _currentMoveSpeed += _accelerationSpeed * time;
-            else _currentMoveSpeed -= _accelerationSpeed * 3f * time;
-        }
+            _currentMoveSpeed = _maxAcceleration;
         else if (moveInputs.magnitude <= 0.1f)
-        {
-            if (_currentMoveSpeed >= 0) _currentMoveSpeed = 0;
-                //_currentMoveSpeed -= _accelerationSpeed * time;
-        }
+            _currentMoveSpeed = 0f;
 
         _currentMoveSpeed = Mathf.Clamp(_currentMoveSpeed, 0f, _runSpeed);
         //  _currentMoveSpeed = Mathf.Clamp(_maxAcceleration, 0f, _runSpeed);
@@ -186,18 +223,17 @@ public abstract class PlayerMovements : NetworkBehaviour
         moveInputs.Normalize();
         moveInputs *= _currentMoveSpeed;
 
-        if (!_characterController.isGrounded)
-            _currentVerticalVelocity += (Physics.gravity.y * time * _gravity);  //Subtract gravity from the vertical velocity.
-       /// else _currentVerticalVelocity = 0; // Reset Gravity if we are not grounded
-
         //Perhaps prevent the value from getting too low.
-        _currentVerticalVelocity = Mathf.Max(-20f, _currentVerticalVelocity);
+        _currentVerticalVelocity.y = Mathf.Max(-20f, _currentVerticalVelocity.y);
 
         //Add vertical velocity to the movement after movement is normalized.
         //You don't want to normalize the vertical velocity.
-        moveInputs += new Vector3(0f, _currentVerticalVelocity, 0f);
+        moveInputs += _currentVerticalVelocity;
+
         //Move your character!
         _characterController.Move(moveInputs * time);
+
+        _fullBodyAnimatorHandler.SetMovementsValues(_movementInputs, _characterController.velocity.magnitude);
     }
 
     public virtual void UpdateRotation(Vector2 viewInputs, float time)
@@ -228,7 +264,27 @@ public abstract class PlayerMovements : NetworkBehaviour
                 OnPlayerJump();
             }
 
-            _currentVerticalVelocity = jumpForce;
+            _currentVerticalVelocity = new Vector3(0f, jumpForce,0f) + transform.forward * 3f;
+        }
+    }
+
+    public virtual void CalculateStamina(float deltaTime)
+    {
+        if (_localPlayerActionData.isRunning)
+        {
+            //Calcculate Stamina  Depletion
+            if (_currentStamina > 0)
+                _currentStamina -= deltaTime * _staminaDepletionRate;
+            else _canRunAfterStamina = false;
+        }
+        else
+        {
+            //Caclculate Stamina Recovery
+            if (_isGrounded)
+            {
+                if (_currentStamina < _maxStamina) _currentStamina += deltaTime * _staminaRecoveryRate;
+                if (_currentStamina > _maxStamina / 3) _canRunAfterStamina = true; // Can run again after regenerate 3/4 of the stammina
+            }
         }
     }
 
@@ -251,8 +307,13 @@ public abstract class PlayerMovements : NetworkBehaviour
          * off edges. Also move towards this gravity amount over time so gravity
          * isn't immediately reset upon landing, but rather is gradually to
          * give the impression of losing momentum. */
-        if (_characterController.isGrounded && _currentVerticalVelocity < -1f)
-            _currentVerticalVelocity = Mathf.MoveTowards(_currentVerticalVelocity, -1f, (-Physics.gravity.y * _gravity * 2f) * deltaTime);
+        if (_characterController.isGrounded && _currentVerticalVelocity.y < -1f)
+        {
+            _currentVerticalVelocity.y = Mathf.MoveTowards(_currentVerticalVelocity.y, -1f, (-Physics.gravity.y * _gravity * 2f) * deltaTime);
+            _currentVerticalVelocity.x = 0;
+            _currentVerticalVelocity.z = 0;
+        }
+  
     }
 
     /// <summary>
@@ -262,11 +323,15 @@ public abstract class PlayerMovements : NetworkBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         //Cancel jump velocity if hitting something above.
-        if (_currentVerticalVelocity > 0f && hit.moveDirection.y > 0f)
+        if (_currentVerticalVelocity.y > 0f && hit.moveDirection.y > 0f)
         {
             //If hit is above middle of character controller it's safe to assume it's above.
             if (hit.point.y > transform.position.y + (_characterController.height / 2f))
-                _currentVerticalVelocity = 0f;
+            {
+                _currentVerticalVelocity.x = 0f;
+                _currentVerticalVelocity.y = 0f;
+                _currentVerticalVelocity.z = 0f;
+            }
         }
     }
 
@@ -344,7 +409,7 @@ public abstract class PlayerMovements : NetworkBehaviour
         /* Don't allow stepping when in the air. This is so the client cannot step up on cliffs when falling in front of them.
          * This is an issue with the unity character controller that would maybe be good for ledge grabbing, but not for
          * a FPS game. */
-        _characterController.stepOffset = (_isGrounded && _currentVerticalVelocity <= 0f) ? _defaultStepOffset : 0f;
+        _characterController.stepOffset = (_isGrounded && _currentVerticalVelocity.y <= 0f) ? _defaultStepOffset : 0f;
     }
 
     /// <summary>
@@ -352,9 +417,14 @@ public abstract class PlayerMovements : NetworkBehaviour
     /// </summary>
     protected void ApplyGravity(ref float verticalVelocity, float deltaTime)
     {
-        //Multiply gravity by 2 for snappier jumps.
-        verticalVelocity += (Physics.gravity.y * _gravity) * deltaTime;
-        verticalVelocity = Mathf.Max(verticalVelocity, Physics.gravity.y * _gravity);
+        if (!_localPlayerActionData.onLadder)
+        {
+            //Multiply gravity by 2 for snappier jumps.
+            verticalVelocity += (Physics.gravity.y * _gravity) * deltaTime;
+            verticalVelocity = Mathf.Max(verticalVelocity, Physics.gravity.y * _gravity);
+        }
+        else verticalVelocity = 0f;
+
     }
 
     /// <summary>
@@ -367,8 +437,36 @@ public abstract class PlayerMovements : NetworkBehaviour
 
     public virtual void ToogleSpeed(bool oldValue, bool newValue, bool asServer) { }
 
+
+    public virtual void ToogleCrouch(bool crouch)
+    {
+        if (_crouchCoroutine != null) StopCoroutine(_crouchCoroutine);
+        _crouchCoroutine = StartCoroutine(CrouchCoroutine(crouch));
+    }
+
+    private IEnumerator CrouchCoroutine(bool crouch)
+    {
+        float targetHeight;
+        float currentHeigth = _characterController.height;
+        if (crouch) targetHeight = _crouchHeight;
+        else targetHeight = _defaultPlayerHeight;
+
+        float time = 0;
+        while (time < 1)
+        {
+            _characterController.height = Mathf.Lerp(currentHeigth, targetHeight, time);
+            _characterController.center = new Vector3(0f, _characterController.height / 2f, 0f);
+            yield return null;
+            time += Time.deltaTime * _crouchTransitionSpeed;
+        }
+            
+
+    }
+
     public virtual void CheckIfWeAreFalling(bool replaying)
     {
+        if (_localPlayerActionData.onLadder) return;
+
         if (!_wasFalling && _isFalling) _startFallPos = transform.position.y;
         if (!_wasGrounded && _isGrounded)
         {
@@ -405,6 +503,98 @@ public abstract class PlayerMovements : NetworkBehaviour
     }
 
 
+    public virtual void SetPlayerLadder(Vector3 forwardDirection, Vector3 startPos, LadderScript ladder)
+    {
+        _currentLadder = ladder;
+        _playerInventoryHandler.HostlerItem();
+
+        _fullBodyAnimatorHandler.SetOnLadder(true);
+        _localPlayerActionData.onLadder = true;
+
+        StartCoroutine(LadderTransition(true, startPos, forwardDirection));
+
+    }
+
+    public virtual void ForceExitPlayerLadder()
+    {
+        if (_currentLadder != null)
+        {
+            _currentLadder = null;
+        }
+            
+
+        _playerInventoryHandler.UnhostlerItem();
+        _fullBodyAnimatorHandler.SetOnLadder(false);
+        _localPlayerActionData.onLadder = false;
+        _characterController.enabled = true;
+        _characterController.radius = _defaultCharacterControllerRadius;
+
+        ToogleSpeed(true, true, base.IsServer);
+    }
+
+
+    public virtual void AnimatedExitPlayerLadder(Vector3 forwardDirection, Vector3 targetPos)
+    {
+        _playerInventoryHandler.UnhostlerItem();
+
+        _fullBodyAnimatorHandler.SetOnLadder(false);
+        _fullBodyAnimatorHandler.PlayLadderExit(true);
+
+        StartCoroutine(LadderTransition(false, targetPos, forwardDirection));
+    }
+
+
+    /// <summary>
+    /// State == true, entering Ladder else exiting ladder
+    /// </summary>
+    /// <param name="state"></param>
+    /// <param name="targetPos"></param>
+    /// <param name="targetDir"></param>
+    /// <returns></returns>
+    public virtual IEnumerator LadderTransition(bool state, Vector3 targetPos, Vector3 targetDir)
+    {
+        _characterController.enabled = false;
+
+        _fullBodyAnimatorHandler.SetLadderStartTransition(true);
+
+        Vector3 targetPosition = targetPos;
+        Vector3 currentPosition = transform.position;
+        Vector3 currentLookDir = _lookDirection;
+        Quaternion targetRotation = Quaternion.Euler(targetDir - transform.position);
+        Quaternion currentRotation = transform.rotation;
+
+
+        float time = 0;
+
+        while (time < 1)
+        {
+            _lookDirection = Vector3.Lerp(currentLookDir, transform.eulerAngles, time);
+            transform.position = Vector3.Lerp(currentPosition, targetPosition, time);
+            transform.forward = targetDir;
+            yield return null;
+
+            time += Time.deltaTime * 3f;
+        }
+
+        _fullBodyAnimatorHandler.SetLadderStartTransition(false);
+        _characterController.enabled = true;
+
+        if (state) _characterController.radius = 0;
+        else
+        {
+            _fullBodyAnimatorHandler.PlayLadderExit(false);
+            _localPlayerActionData.onLadder = false;
+            _characterController.radius = _defaultCharacterControllerRadius;
+            ToogleSpeed(true, true , base.IsServer);
+
+            if (_currentLadder != null)
+            {
+                _currentLadder = null;
+            }
+        }
+    }
+
+
     protected bool CanPressSprint()
     {
         if (isLockController) return false;
@@ -415,6 +605,7 @@ public abstract class PlayerMovements : NetworkBehaviour
         if (_localPlayerActionData.isDead) return false;
         if (!_canRunAfterStamina) return false;
         if (_currentStamina <= 0f) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -431,6 +622,7 @@ public abstract class PlayerMovements : NetworkBehaviour
     {
         if (isLockController) return false;
         if (_localPlayerActionData.isDead) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
@@ -442,11 +634,20 @@ public abstract class PlayerMovements : NetworkBehaviour
         if (isLockController) return false;
         if (!_isGrounded) return false;
         if (_localPlayerActionData.isDead) return false;
+        if (_localPlayerActionData.isCrouch) return false;
         if (_currentStamina <= _staminaDepletionOnJump) return false;
+        if (_localPlayerActionData.onLadder) return false;
 
         return true;
     }
 
+
+    protected bool CanClimbLadder()
+    {
+        if (_localPlayerActionData.onLadder) return false;
+
+        return true;
+    }
 
     public virtual void PlayJumpSound()
     {

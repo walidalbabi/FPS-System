@@ -78,6 +78,14 @@ public class InputHandler : MonoBehaviour
         }
     }
 
+    public void On_Crouch(InputAction.CallbackContext context)
+    {
+        if (!CanGetInputs()) return;
+
+        if (context.started)
+            _cashedInputs.crouch = !_cashedInputs.crouch;
+    }
+
     public void On_StealthWalk(InputAction.CallbackContext context)
     {
         if (!CanGetInputs()) return;
@@ -144,6 +152,11 @@ public class InputHandler : MonoBehaviour
         _cashedInputs.itemScroll = context.ReadValue<Vector2>();
     }
 
+    public void On_Interact(InputAction.CallbackContext context)
+    {
+        if (!CanGetInputs()) return;
+        _cashedInputs.interact = context.performed;
+    }
 
     private void ToggleCursor(bool state)
     {
@@ -174,6 +187,12 @@ public class InputHandler : MonoBehaviour
     {
         //Reset Inputs
         _cashedInputs.LeftClick = false;
+    }
+
+    public void NeededResetCashedInputsInteract()
+    {
+        //Reset Inputs
+        _cashedInputs.interact = false;
     }
 
     private bool CanGetInputs()

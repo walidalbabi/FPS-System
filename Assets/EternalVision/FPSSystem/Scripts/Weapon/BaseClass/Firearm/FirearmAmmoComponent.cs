@@ -10,6 +10,7 @@ public abstract class FirearmAmmoComponent : FirearmComponent
     [Tooltip("Max Ammo this Weapon Can have in a single mag")]
     [SerializeField] protected int _magAmmo;
     [SerializeField] protected bool _autoReloadOnEmpty;
+    [SerializeField] protected bool _resetAmmoAfterPlayerRespawn;
 
     protected int _currentAmmoCount;
     protected int _totalAmmo;
@@ -35,9 +36,26 @@ public abstract class FirearmAmmoComponent : FirearmComponent
         FirearmShootCompoment.OnFire += OnFire;
     }
 
+
+    public override void SetWeaponOwner(WeaponBehaviour component)
+    {
+        base.SetWeaponOwner(component);
+
+        if (_resetAmmoAfterPlayerRespawn)
+        {
+        //    _currentWeapon.playerInventoryHandler.GetComponent<PlayerHealth>().OnRespawned += ResetAmmo;
+        }
+    }
+
+
     public virtual void OnDestroy()
     {
         FirearmShootCompoment.OnFire -= OnFire;
+
+        if (_resetAmmoAfterPlayerRespawn)
+        {
+          //  _currentWeapon.playerInventoryHandler.GetComponent<PlayerHealth>().OnRespawned -= ResetAmmo;
+        }
     }
 
     public virtual void Start()
@@ -60,6 +78,13 @@ public abstract class FirearmAmmoComponent : FirearmComponent
         else if (_autoReloadOnEmpty) { 
             _currentWeapon.Reload();
         }
+    }
+
+
+    public void ResetAmmo()
+    {
+        _totalAmmo = _maxAmmo;
+        _currentAmmoCount = _magAmmo;
     }
 
     public void Event_CallOnReload(WeaponBehaviour weapon, WeaponSoundsState state)

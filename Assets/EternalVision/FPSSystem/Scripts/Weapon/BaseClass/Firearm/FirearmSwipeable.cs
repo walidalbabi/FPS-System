@@ -23,8 +23,8 @@ public class FirearmSwipeable : SwipeableItemClass
         }
     }
 
-    public override void OnUnEquip()
+    public override void OnUnEquip(bool isChangingItem)
     {
-        _currentWeapon.OnUnEquip();
+        _currentWeapon.OnUnEquip(isChangingItem);
     }
 }

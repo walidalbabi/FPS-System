@@ -11,7 +11,7 @@ public abstract class SwipeableItemClass : MonoBehaviour
 
     public abstract void OnEquip();
 
-    public abstract void OnUnEquip();
+    public abstract void OnUnEquip(bool isChangingItem);
 }
 
 

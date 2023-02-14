@@ -23,6 +23,7 @@ public class LocalPlayerData : NetworkBehaviour
     public bool isSwitchingItem;
     public bool isDead;
     public bool isAiming;
+    public bool onLadder;
 
     /// <summary>
     /// Act only for this current local client, use GameManager instead for other viewrs

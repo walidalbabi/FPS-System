@@ -16,6 +16,12 @@ public class ModularFirearm : WeaponBehaviour
     public override void Awake()
     {
         base.Awake();
+        FirearmAmmoComponent.OnReloadStateChange += OnReloadStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        FirearmAmmoComponent.OnReloadStateChange -= OnReloadStateChanged;
     }
 
     private void OnEnable()
@@ -54,7 +60,7 @@ public class ModularFirearm : WeaponBehaviour
         _firearmRunComponent.SetPlayermovementsComponent(_playerMovements);
     }
 
-    public override void OnUnEquip()
+    public override void OnUnEquip(bool isChangingItem)
     {
         //Trigger The Unequip Animation
         foreach (var anim in animators)
@@ -62,7 +68,20 @@ public class ModularFirearm : WeaponBehaviour
             anim.SetTrigger("Unequip");
         }
         //Unquipe Weapon
-        StartCoroutine(UnequipWeapon(animators[0].GetFloat("EquipSpeed")));
+        StartCoroutine(UnequipWeapon(animators[0].GetFloat("EquipSpeed"), isChangingItem));
+    }
+
+
+    IEnumerator UnequipWeapon(float delay, bool isChangingItem)
+    {
+        //Waiting unquip animation to finish
+        yield return new WaitForSeconds(delay);
+        //Equip New Weapon
+        if (isChangingItem)
+            _playerInventoryHandler.EnableNewItem();
+        //Disable Current Weapon
+        _weaponModule.gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
 
@@ -100,6 +119,9 @@ public class ModularFirearm : WeaponBehaviour
         if (_weaponAmmoComponent.CanReload())
         {
             _weaponAimComponent.ToggleISAiming(false);
+            _weaponAmmoComponent.Event_CallOnReloadStateChange(this, true);
+            _weaponAmmoComponent.isReloading = true;
+
 
             if (_weaponAmmoComponent.isEmpty)
             {
@@ -118,15 +140,21 @@ public class ModularFirearm : WeaponBehaviour
                 }
             }
 
-
             _fullBodyAnimatorHandler.SetReload();
-
-            _weaponAmmoComponent.Event_CallOnReloadStateChange(this, true);
-            _weaponAmmoComponent.isReloading = true;
         }
   
     }
 
+    private void OnReloadStateChanged(WeaponBehaviour weapon, bool state)
+    {
+        if (weapon != this) return;
+
+        foreach (var anim in animators)
+        {
+            anim.SetBool("IsReloading", state);
+        }
+
+    }
 
     [ServerRpc]
     private void ServerReload()
@@ -177,16 +205,6 @@ public class ModularFirearm : WeaponBehaviour
     }
 
 
-    IEnumerator UnequipWeapon(float delay)
-    {
-        //Waiting unquip animation to finish
-        yield return new WaitForSeconds(delay);
-        //Equip New Weapon
-        _playerInventoryHandler.EnableNewItem();
-        //Disable Current Weapon
-        _weaponModule.gameObject.SetActive(false);
-        gameObject.SetActive(false);
-    }
 
 
 }

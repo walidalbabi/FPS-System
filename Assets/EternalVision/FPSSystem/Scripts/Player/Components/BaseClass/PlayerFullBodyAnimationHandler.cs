@@ -16,6 +16,10 @@ public class PlayerFullBodyAnimationHandler : NetworkBehaviour
     [SerializeField] protected string _view_Pitch = "Pitch";
     [SerializeField] protected string _jump = "Jump";
     [SerializeField] protected string _run = "Run";
+    [SerializeField] protected string _crouch = "isCrouch";
+    [SerializeField] protected string _onLadder = "onLadder";
+    [SerializeField] protected string _ladderExitTransition = "ExitLadderTransition";
+    [SerializeField] protected string _ladderStartTransition = "StartLadderTransition";
     [SerializeField] protected string _stealthWalk = "StealthWalk";
     [SerializeField] protected string _fire = "Fire";
     [SerializeField] protected string _reload = "Reload";
@@ -26,6 +30,10 @@ public class PlayerFullBodyAnimationHandler : NetworkBehaviour
     protected int HASH_MovementVertical;
     protected int HASH_Jump;
     protected int HASH_Run;
+    protected int HASH_Crouch;
+    protected int HASH_OnLadder;
+    protected int HASH_LadderExitTransition;
+    protected int HASH_LadderStartTransition;
     protected int HASH_Pitch;
     protected int HASH_StealthWalk;
     protected int HASH_Fire;
@@ -52,6 +60,10 @@ public class PlayerFullBodyAnimationHandler : NetworkBehaviour
         HASH_Pitch = Animator.StringToHash(_view_Pitch);
         HASH_Jump = Animator.StringToHash(_jump);
         HASH_Run = Animator.StringToHash(_run);
+        HASH_Crouch = Animator.StringToHash(_crouch);
+        HASH_OnLadder = Animator.StringToHash(_onLadder);
+        HASH_LadderExitTransition = Animator.StringToHash(_ladderExitTransition);
+        HASH_LadderStartTransition = Animator.StringToHash(_ladderStartTransition);
         HASH_StealthWalk = Animator.StringToHash(_stealthWalk);
         HASH_Fire = Animator.StringToHash(_fire);
         HASH_Reload = Animator.StringToHash(_reload);
@@ -98,6 +110,27 @@ public class PlayerFullBodyAnimationHandler : NetworkBehaviour
         _thirdPersonAnimator.SetBool(HASH_Run, isRunning);
     }
 
+    public void SetCrouch(bool isCrouch)
+    {
+        _thirdPersonAnimator.SetBool(HASH_Crouch, isCrouch);
+    }
+
+
+    public void SetOnLadder(bool onLadder)
+    {
+        _thirdPersonAnimator.SetBool(HASH_OnLadder, onLadder);
+    }
+
+    public void PlayLadderExit(bool state)
+    {
+        _thirdPersonAnimator.SetBool(HASH_LadderExitTransition, state);
+    } 
+    
+    
+    public void SetLadderStartTransition(bool state)
+    {
+        _thirdPersonAnimator.SetBool(HASH_LadderStartTransition, state);
+    }
 
     public void SetStealthWalk(bool isStealthWalk)
     {

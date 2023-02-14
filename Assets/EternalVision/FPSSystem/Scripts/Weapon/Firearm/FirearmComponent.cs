@@ -8,7 +8,7 @@ public class FirearmComponent : NetworkBehaviour
 
     protected WeaponBehaviour _currentWeapon;
 
-    public void SetWeaponOwner(WeaponBehaviour component)
+    public virtual void SetWeaponOwner(WeaponBehaviour component)
     {
         _currentWeapon = component;
     }

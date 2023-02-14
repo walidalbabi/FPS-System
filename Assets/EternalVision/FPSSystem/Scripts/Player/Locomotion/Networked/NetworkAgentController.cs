@@ -1,8 +1,5 @@
 using FishNet.Managing.Logging;
 using FishNet.Object;
-using FishNet.Object.Synchronizing;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class NetworkAgentController : PlayerController
@@ -31,6 +28,8 @@ public class NetworkAgentController : PlayerController
         {
             GetInputs();
             CheckForChangingItem();
+            CheckForInteractions();
+            CheckForExitCurrentLadder();
             if (_playerInventoryHandler.currentSelectedPlayerItem == null) return;
 
 
@@ -71,4 +70,87 @@ public class NetworkAgentController : PlayerController
         base.CheckForChangingItem();
     }
 
+    [Client(Logging = LoggingType.Off)]
+    public override void CheckForInteractions()
+    {
+        if (!CanInteract()) return;
+
+        if (_networkInputs.interact)
+        {
+            Debug.Log("interact pressed");
+            Ray ray = Camera.main.ScreenPointToRay(_screenRay);
+            ServerInteract(ray.origin, ray.direction);
+            RaycastForInteraction(ray.origin, ray.direction);
+        }
+    }
+
+    [Client(Logging = LoggingType.Off)]
+    public override void CheckForExitCurrentLadder()
+    {
+        if (_networkInputs.interact)
+        {
+            ServerExitLadder();
+        }
+    }
+
+    [ServerRpc]
+    private void ServerInteract(Vector3 pos, Vector3 dir)
+    {
+        if (base.IsServer)
+        {
+            RaycastForInteraction(pos, dir);
+            ObserversInteract(pos, dir);
+        }
+    }
+
+    [ObserversRpc]
+    private void ObserversInteract(Vector3 pos, Vector3 dir)
+    {
+        if (base.IsOwner || base.IsServer) return;
+        RaycastForInteraction(pos, dir);
+    }
+
+
+    [ServerRpc]
+    private void ServerExitLadder()
+    {
+        if (base.IsServer)
+        {
+            if (_localPlayerActionData.onLadder)
+            {
+                _playerMovements.ForceExitPlayerLadder();
+            }
+            ObserversExitLadder();
+        }
+    }
+
+    [ObserversRpc]
+    private void ObserversExitLadder()
+    {
+        if (base.IsOwner || base.IsServer) return;
+        if (_localPlayerActionData.onLadder)
+        {
+            _playerMovements.ForceExitPlayerLadder();
+        }
+    }
+
+    private void RaycastForInteraction(Vector3 origin, Vector3 direction)
+    {
+        Ray ray = new Ray(origin,direction);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, _interactionDistance, _interactionLayer))
+        {
+            if (hit.collider != null)
+            {
+                var interactive = hit.collider.GetComponent<I_Interactable>();
+                if (interactive != null)
+                {
+                    Debug.Log("Found a Interactor" + base.IsServer + base.IsOwner);
+                    //interact
+                    interactive.Interact(this.gameObject);
+                }
+
+            }
+        }
+    }
 }

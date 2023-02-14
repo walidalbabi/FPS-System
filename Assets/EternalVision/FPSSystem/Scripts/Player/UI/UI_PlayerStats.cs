@@ -77,7 +77,8 @@ public class UI_PlayerStats : MonoBehaviour
         //Set Stamina
         if(_staminaFill != null && _playerMovements != null)
         {
-            _staminaFill.fillAmount = _playerMovements.currentStamina / 100f;
+       //     _staminaFill.fillAmount = _playerMovements.currentStamina / 100f;
+            _staminaFill.fillAmount = Mathf.Lerp(_staminaFill.fillAmount, _playerMovements.currentStamina / 100f, Time.deltaTime * 5f);
         }
 
         //Set hit Marker

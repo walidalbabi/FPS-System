@@ -26,6 +26,11 @@ public class NetworkPlayerCameraHander : MainCameraHandler
     }
 
 
+    private void Update()
+    {
+       
+    }
+
     private void TimeManager_OnLateUpdate()
     {
         UpdatePositionAndRotation(Time.deltaTime);

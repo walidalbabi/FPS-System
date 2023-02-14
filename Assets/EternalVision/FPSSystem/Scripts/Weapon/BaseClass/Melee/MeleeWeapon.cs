@@ -64,7 +64,11 @@ public class MeleeWeapon : PlayerItem
         }
     }
 
-    public  void OnUnEquip()
+    /// <summary>
+    /// is Changing weapon true mean that we need to enable the selected weapon after we disable current one
+    /// </summary>
+    /// <param name="isChangingWeapon"></param>
+    public  void OnUnEquip(bool isChangingWeapon)
     {
         //Trigger The Unequip Animation
         foreach (var anim in animators)
@@ -72,21 +76,22 @@ public class MeleeWeapon : PlayerItem
             anim.SetTrigger("Unequip");
         }
         //Unquipe Weapon
-        StartCoroutine(UnequipWeapon(animators[0].GetFloat("EquipSpeed")));
+        StartCoroutine(UnequipWeapon(animators[0].GetFloat("EquipSpeed"), isChangingWeapon));
     }
 
-    IEnumerator UnequipWeapon(float delay)
+    IEnumerator UnequipWeapon(float delay, bool isChangingWeapon)
     {
         //Waiting unquip animation to finish
         yield return new WaitForSeconds(delay);
         //Equip New Weapon
-        _playerInventoryHandler.EnableNewItem();
+        if (isChangingWeapon)
+            _playerInventoryHandler.EnableNewItem();
+
         //Disable Current Weapon
         if (_weaponModule != null)
             _weaponModule.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
-
 
     private void Update()
     {

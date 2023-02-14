@@ -82,7 +82,7 @@ public abstract class PlayerInventoryHandler : NetworkBehaviour
             var playerItem = item.GetComponent<PlayerItem>();
 
             item.transform.localPosition = Vector3.zero;
-            item.OnUnEquip();
+            item.OnUnEquip(true);
             _weaponsInInventory.Add(item);
             _allSwipeableInInventory.Add(item.GetComponent<SwipeableItemClass>());
 
@@ -100,7 +100,7 @@ public abstract class PlayerInventoryHandler : NetworkBehaviour
             if (item.GetComponent<WeaponBehaviour>()) return;
 
             item.transform.localPosition = Vector3.zero;
-            item.OnUnEquip();
+            item.OnUnEquip(true);
             _allSwipeableInInventory.Add(item);
 
             var playerItem = item.GetComponent<PlayerItem>();
@@ -142,7 +142,7 @@ public abstract class PlayerInventoryHandler : NetworkBehaviour
         //Not The same Previouse Item
         if (_previousSwipeable != null)
         {
-            _previousSwipeable.OnUnEquip();
+            _previousSwipeable.OnUnEquip(true);
             Debug.Log("OnUnEquip");
         }
         //Update UI
@@ -180,6 +180,17 @@ public abstract class PlayerInventoryHandler : NetworkBehaviour
 
         }
         else Debug.Log("failed to set weapon aim");
+    }
+
+    public virtual void HostlerItem()
+    {
+        _currentSwipeable.OnUnEquip(false);
+    }
+
+    public virtual void UnhostlerItem()
+    {
+        _currentSwipeable.gameObject.SetActive(true);
+        _currentSwipeable.OnEquip();
     }
 
 

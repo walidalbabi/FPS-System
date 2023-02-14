@@ -1,9 +1,10 @@
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
-public class PlayerFootSteps : MonoBehaviour
+public class PlayerFootSteps : NetworkBehaviour
 {
     [Header("Walkable Layers")]
     [SerializeField] private LayerMask _layer;
@@ -52,7 +53,7 @@ public class PlayerFootSteps : MonoBehaviour
 
     private void Update()
     {
-        Debug.DrawRay(transform.position, Vector3.down * 0.5f, Color.green);
+        Debug.DrawRay(transform.position, Vector3.down * 1.5f, Color.green);
 
         if(_playerMovement.currentMoveSpeed > 0)
         {
@@ -66,7 +67,10 @@ public class PlayerFootSteps : MonoBehaviour
             }
             else
             {
-                PlayFootsteps(BoolToState(_localPlayerData.isRunning, _localPlayerData.isCrouch, _localPlayerData.isStealthWalk));
+                //   PlayFootsteps(BoolToState(_localPlayerData.isRunning, _localPlayerData.isCrouch, _localPlayerData.isStealthWalk));
+                ObserversPlayFootsteps(BoolToState(_localPlayerData.isRunning, _localPlayerData.isCrouch, _localPlayerData.isStealthWalk));
+                _timeToPlayAnotherSound = 0;
+                _canPlaySound = false;
             }
         }
       
@@ -77,12 +81,10 @@ public class PlayerFootSteps : MonoBehaviour
     public void PlayFootsteps(string state)
     {
         Debug.Log(state);
-        if (!_canPlaySound) return;
-
         AudioClip audioClip = GetCurrentSurfaceAudio();
         if (audioClip == null) return;
 
-       var AudioObject = GameManager.instance.objPool.RetrievePoolAudio();
+        var AudioObject = GameManager.instance.objPool.RetrievePoolAudio();
         if (AudioObject == null) return;
 
         AudioSettings settings = GetAudioSetting(state);
@@ -91,15 +93,18 @@ public class PlayerFootSteps : MonoBehaviour
         AudioObject.transform.position = transform.position;
         AudioObject.SetAudioSettings(settings, audioClip);
         AudioObject.Play();
+    }
 
-        _timeToPlayAnotherSound = 0;
-        _canPlaySound = false;
+    [ObserversRpc]
+    public void ObserversPlayFootsteps(string state)
+    {
+        PlayFootsteps(state);
     }
 
     private AudioClip GetCurrentSurfaceAudio()
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position ,Vector3.down, out hit, 0.5f, _layer))
+        if (Physics.Raycast(transform.position ,Vector3.down, out hit, 1.5f, _layer))
         {
             var surface = hit.collider.gameObject.GetComponent<SurfaceIdentifier>();
             if (surface == null) return null;

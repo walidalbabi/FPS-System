@@ -111,7 +111,7 @@ public abstract class MainCameraHandler : MonoBehaviour
             SnapTheCameraToPlayer();
         }
     }
-
+    Vector3 velocit;
     /// <summary>
     /// Updates the cameras position and rotation to the player.
     /// </summary>
@@ -133,10 +133,10 @@ public abstract class MainCameraHandler : MonoBehaviour
                 }
                 else
                 {
-                  //  _movingTime += deltaTime;
-                  //  float smoothingPercent = (_movingTime / _smoothedPositionalTime);
-                  //  float smoothingRate = Mathf.Lerp(_positionalSmoothingRateMax, _positionalSmoothingRateMin, smoothingPercent);
-                    transform.position = Vector3.Slerp(transform.position, targetPosition, _positionalSmoothingRateMin  * deltaTime);
+                    _movingTime += deltaTime;
+                    float smoothingPercent = (_movingTime / _smoothedPositionalTime);
+                    float smoothingRate = Mathf.Lerp(_positionalSmoothingRateMax, _positionalSmoothingRateMin, smoothingPercent);
+                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, smoothingRate * distance * deltaTime);
                 }
             }
             //At position.

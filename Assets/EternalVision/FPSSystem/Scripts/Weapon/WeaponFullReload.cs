@@ -13,8 +13,7 @@ public class WeaponFullReload : FirearmAmmoComponent
         base.Awake();
         if (_fullOnStart)
         {
-            _totalAmmo = _maxAmmo;
-            _currentAmmoCount = _magAmmo;
+            ResetAmmo();
         }
     }
 

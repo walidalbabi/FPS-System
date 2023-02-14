@@ -1565,6 +1565,7 @@ MonoBehaviour:
   _maxAmmo: 150
   _magAmmo: 30
   _autoReloadOnEmpty: 0
+  _resetAmmoAfterPlayerRespawn: 1
   _infiniteAmmo: 1
   _fullOnStart: 1
 --- !u!114 &8436247803803530771
@@ -1699,7 +1700,7 @@ MonoBehaviour:
   _isGlobal: 0
   _defaultDespawnType: 0
   NetworkObserver: {fileID: 0}
-  <PrefabId>k__BackingField: 9
+  <PrefabId>k__BackingField: 12
   _scenePathHash: 0
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13798295871479886512

@@ -52,6 +52,7 @@ public class PlayerHealth : NetworkBehaviour
 
     //Private
     private PlayerMovements _playerMovements;
+    private LocalPlayerData _localPlayerData;
 
     //Protected
     protected int _oldHealth;
@@ -60,6 +61,8 @@ public class PlayerHealth : NetworkBehaviour
     public virtual void Awake()
     {
         _playerMovements = GetComponent<PlayerMovements>();
+        _localPlayerData = GetComponent<LocalPlayerData>();
+
          CurrentHealth = MaximumHealth;
 
        // SetFallDamageEvent();
@@ -121,6 +124,7 @@ public class PlayerHealth : NetworkBehaviour
     public virtual void Respawned()
     {
         OnRespawned?.Invoke();
+        if (_localPlayerData.onLadder) _playerMovements.ForceExitPlayerLadder();
     }
 
     /// <summary>
