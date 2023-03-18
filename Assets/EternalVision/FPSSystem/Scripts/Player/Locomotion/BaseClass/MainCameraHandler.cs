@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class MainCameraHandler : MonoBehaviour
 {
-
+    [SerializeField] private Transform targetPos;
     /// <summary>
     /// Camera used to view the world.
     /// </summary>
@@ -15,6 +15,8 @@ public abstract class MainCameraHandler : MonoBehaviour
     [SerializeField]
     private Camera _weaponCamera;
     [Header("Motions")]
+    [SerializeField]
+    private Transform _motion;
     [SerializeField]
     private Transform _fpsHandParent;
 
@@ -100,6 +102,10 @@ public abstract class MainCameraHandler : MonoBehaviour
             _mainCamera.enabled = true;
             _weaponCamera.enabled = true;
 
+            _motion.parent = _bodiesConfigurations.fullBodyArmsMatcher;
+            _motion.localPosition = Vector3.zero;
+            _motion.localRotation = Quaternion.identity;
+
             _playerController.Event_OnCameraTargetChanged(_mainCamera.gameObject);
 
             if (_playerHealth != null)
@@ -118,10 +124,12 @@ public abstract class MainCameraHandler : MonoBehaviour
     /// <param name="deltaTime"></param>
     public virtual void UpdatePositionAndRotation(float deltaTime)
     {
+        if (targetPos == null) return;
+
         if (_looking != null)
         {
             /* Position. */
-            Vector3 targetPosition = _bodiesConfigurations.fullBodyArmsMatcher.position;
+            Vector3 targetPosition = targetPos.position;
             //Only update position if not currently at position.
             if (transform.position != targetPosition)
             {
@@ -147,6 +155,11 @@ public abstract class MainCameraHandler : MonoBehaviour
             /* Rotation. */
             var rot = Quaternion.Euler(_looking.lookDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, rot, Time.deltaTime * (_rotationFollowSpeed * _rotationFollowSpeedMultiplayer));
+
+            _mainCamera.transform.position = transform.position;
+
+            //if (_bodiesConfigurations != null)
+            //    _bodiesConfigurations.fullBodyArmsMatcher.forward = transform.forward;
         }
     }
 

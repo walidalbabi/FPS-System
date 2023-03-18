@@ -11443,7 +11443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85a917ffd9fd91e4ca11371a4dea7fc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 6
+  _componentIndexCache: 7
   _addedNetworkObject: {fileID: -3517350167087721969}
   _networkObjectCache: {fileID: -3517350167087721969}
   _crosshairTansform: {fileID: 5515250795061560320}
@@ -11825,6 +11825,7 @@ GameObject:
   - component: {fileID: 6186567969710485650}
   - component: {fileID: 9001123829449841626}
   - component: {fileID: -3517350167087721969}
+  - component: {fileID: 4945439276745792823}
   m_Layer: 0
   m_Name: Firearm_Pistol
   m_TagString: Untagged
@@ -11866,14 +11867,28 @@ MonoBehaviour:
   _networkObjectCache: {fileID: -3517350167087721969}
   currentItemType: 0
   weaponOffset: {x: 0.02, y: -1.58, z: 0.16}
+  armsOffset:
+    startLocalPos: {x: 0, y: -0.09, z: 1.51}
+    upOffset: {x: 0.11, y: 0.46, z: -0.28}
+    downOffset: {x: -0.15, y: 0.32, z: 0.17}
+    crouchOffset: {x: 0.14, y: -0.29, z: -0.48}
+    runOffset: {x: 0, y: -0.25, z: -0.09}
+    startConstrainstValue: {x: -43.9, y: -22.1, z: 31.35}
+    upOffsetConstraints: {x: 9.86, y: 72.6, z: 16}
+    downOffsetConstraints: {x: -7.5, y: 4, z: 44.2}
+    crouchOffsetConstraints: {x: 28.2, y: 17.6, z: 21.9}
+    runOffsetConstraints: {x: 33.01, y: 14.9, z: 22.01}
+  arms:
+  - {fileID: 8966676016819621449}
+  - {fileID: 8966676016355913070}
   animators:
   - {fileID: 0}
   - {fileID: 0}
-  _thirdPersonAnimatorOverride: {fileID: 0}
+  _thirdPersonAnimatorOverride: {fileID: 22100000, guid: 25688ff13c64ba447812601034577e03, type: 2}
   _cameraView: {fileID: 8966676015069329752}
   weaponShootType: 1
   bulletUIImage: {fileID: 21300000, guid: 1616a99e4b5a31d42b0a6278b288c389, type: 3}
-  _weaponThirdPersonModule: {fileID: 4774017055507267607, guid: 6621866b3bf93724584f20da2f605095, type: 3}
+  _weaponThirdPersonModulePrefab: {fileID: 0}
 --- !u!114 &-5743908885968211524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12068,6 +12083,7 @@ MonoBehaviour:
   - {fileID: 4164375987975858414}
   - {fileID: 8436247803803530771}
   - {fileID: 6186567969710485650}
+  - {fileID: 4945439276745792823}
   - {fileID: 7440868645652165048}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
@@ -12080,6 +12096,61 @@ MonoBehaviour:
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 7873790387345593112
   _sceneNetworkObjects: []
+--- !u!114 &4945439276745792823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8966676015406549532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e1e432da64a98419a32b4bdd23cb15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 6
+  _addedNetworkObject: {fileID: -3517350167087721969}
+  _networkObjectCache: {fileID: -3517350167087721969}
+  m_Animator: {fileID: 3629951130508523318}
+  m_HandMatching: 3
+  m_FingerMatching: 1
+  m_RigType: 0
+  m_LeftHandIkTarget: {fileID: 8966676016530585322}
+  m_RightHandIkTarget: {fileID: 8966676016538319396}
+  m_FingerBones:
+  - {fileID: 8966676016233533257}
+  - {fileID: 8966676015181457237}
+  - {fileID: 8966676015769080321}
+  - {fileID: 8966676015670602412}
+  - {fileID: 8966676015565794023}
+  - {fileID: 8966676017069884931}
+  - {fileID: 8966676017009955789}
+  - {fileID: 8966676016718766495}
+  - {fileID: 8966676017106215276}
+  - {fileID: 8966676015800634825}
+  - {fileID: 8966676015650210557}
+  - {fileID: 8966676016558925171}
+  - {fileID: 8966676015413104193}
+  - {fileID: 8966676016523966588}
+  - {fileID: 8966676015945409419}
+  - {fileID: 8966676015324243540}
+  - {fileID: 8966676015871610688}
+  - {fileID: 8966676016286185989}
+  - {fileID: 8966676015302744239}
+  - {fileID: 8966676015467576781}
+  - {fileID: 8966676015629850709}
+  - {fileID: 8966676016080891759}
+  - {fileID: 8966676015670702984}
+  - {fileID: 8966676016841878621}
+  - {fileID: 8966676016398042771}
+  - {fileID: 8966676015485215451}
+  - {fileID: 8966676017081001917}
+  - {fileID: 8966676016247368811}
+  - {fileID: 8966676016820229997}
+  - {fileID: 8966676016022555211}
+  m_Offsets: {fileID: 11400000, guid: 49cb252001d2bd94f928489fbd0f4c32, type: 2}
+  expandLeftFingers: 1
+  expandRightFingers: 1
 --- !u!1 &8966676015413104192
 GameObject:
   m_ObjectHideFlags: 0

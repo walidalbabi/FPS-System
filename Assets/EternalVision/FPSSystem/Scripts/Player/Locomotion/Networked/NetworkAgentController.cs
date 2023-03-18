@@ -87,10 +87,7 @@ public class NetworkAgentController : PlayerController
     [Client(Logging = LoggingType.Off)]
     public override void CheckForExitCurrentLadder()
     {
-        if (_networkInputs.interact)
-        {
-            ServerExitLadder();
-        }
+        base.CheckForExitCurrentLadder();
     }
 
     [ServerRpc]
@@ -108,30 +105,6 @@ public class NetworkAgentController : PlayerController
     {
         if (base.IsOwner || base.IsServer) return;
         RaycastForInteraction(pos, dir);
-    }
-
-
-    [ServerRpc]
-    private void ServerExitLadder()
-    {
-        if (base.IsServer)
-        {
-            if (_localPlayerActionData.onLadder)
-            {
-                _playerMovements.ForceExitPlayerLadder();
-            }
-            ObserversExitLadder();
-        }
-    }
-
-    [ObserversRpc]
-    private void ObserversExitLadder()
-    {
-        if (base.IsOwner || base.IsServer) return;
-        if (_localPlayerActionData.onLadder)
-        {
-            _playerMovements.ForceExitPlayerLadder();
-        }
     }
 
     private void RaycastForInteraction(Vector3 origin, Vector3 direction)

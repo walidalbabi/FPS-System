@@ -1,3 +1,4 @@
+using EternalVision.FPS;
 using FishNet;
 using FishNet.Connection;
 using FishNet.Managing.Timing;
@@ -65,8 +66,6 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
         UpdateBullet(Time.deltaTime);
 
     }
-
-
 
     public override void Shoot()
     {
@@ -207,19 +206,6 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
                 }
             }
         }
-
-        //Only for visuals thirdperson/firstperson
-        Vector3 visualExitPoint = _currentWeapon.ownership.isOwner ? muzzleTipFirstPerson.position : _weaponFireArm.weaponModule.muzzleTip.position;
-
-        //Pooling the projectile
-     //   Projectile pj = _objectPool.RetrievePoolBulletObject(_bulletProjectileTrace);
-        //if (pj == null) return;
-        ////Setting projectile Position
-        //pj.transform.position = visualExitPoint;
-        ////adding the projectile
-        //Vector3 visualBulletDirection = hit.collider != null ? hit.point : direction * 100f;
-        ////  visualBulletDirection = networkOwnership.isOwner ? visualBulletDirection : (_weaponFireArm.weaponModule.muzzleTip.forward + spreadCast) * 100f;
-        //pj.AddProjectile(visualExitPoint, visualBulletDirection, surface);
     }
 
     private void CheckForDamage(RaycastHit hit)
@@ -227,7 +213,7 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
 
         if (hit.collider == null) return;
 
-        Hitbox hitbox = hit.collider.GetComponent<Hitbox>();
+        I_Hitbox hitbox = hit.collider.GetComponent<I_Hitbox>();
         if (hitbox != null)
         {
           
@@ -286,7 +272,8 @@ public class FirearmAdvancedHitscan : FirearmShootCompoment
 
         if (!base.IsOwner && !base.IsServer)
         {
-            _weaponFireArm.weaponModule.Shoot("Fire");
+            if (_weaponFireArm.weaponModule != null)
+                _weaponFireArm.weaponModule.Shoot("Fire");
             Event_OnFire();
             //Spawn the projectile locally.
             SpawnProjectile(position, direction, passedTime);

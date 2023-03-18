@@ -3,10 +3,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EternalVision;
 
 public class ModularFirearm : WeaponBehaviour
 {
-    [SerializeField] private WeaponThirdPersonModule _weaponThirdPersonModule;
+    [SerializeField] private WeaponThirdPersonModule _weaponThirdPersonModulePrefab;
     /// <summary>
     /// The instantiated weapon for the fullbody used if we want to instantiate a bullet there for visuals , also for playing other visuals
     /// </summary>
@@ -29,13 +30,22 @@ public class ModularFirearm : WeaponBehaviour
         //set weapon Sway Settings
         if (_itemSwayMotion != null) _itemSwayMotion.SetWeaponSway();
         if (_itemBobbingMotion != null) _itemBobbingMotion.SetBobSettings();
+
+
+        DisableArmsMesh();
+        
     }
 
     public override void Set_PlayerInventoryHandler(PlayerInventoryHandler component)
     {
         base.Set_PlayerInventoryHandler(component);
-        _weaponModule = Instantiate(_weaponThirdPersonModule, _playerInventoryHandler.weaponThirdPersonHolder);
-        _weaponModule.transform.localPosition = Vector3.zero;
+        if (GetComponent<WieldableItemKinematics>()) return;
+        if(_weaponThirdPersonModulePrefab != null)
+        {
+            _weaponModule = Instantiate(_weaponThirdPersonModulePrefab, _playerInventoryHandler.weaponThirdPersonHolder);
+            _weaponModule.transform.localPosition = Vector3.zero;
+        }
+
     }
 
     public override void OnEquip()
@@ -46,6 +56,12 @@ public class ModularFirearm : WeaponBehaviour
             _weaponModule.transform.localPosition = Vector3.zero;
         }
 
+        if(_fullBodyAnimatorHandler != null)
+        {
+            if (_thirdPersonAnimatorOverride != null)
+                _fullBodyAnimatorHandler.thirdPersonAnimator.runtimeAnimatorController = _thirdPersonAnimatorOverride;
+            else Debug.LogError("No Animator is selected for the current player item");
+        }
     }
 
     public override void SetWeaponComponentsNeeds(NetworkOwnership ownership, PlayerMovements _playerMovements)
@@ -80,10 +96,10 @@ public class ModularFirearm : WeaponBehaviour
         if (isChangingItem)
             _playerInventoryHandler.EnableNewItem();
         //Disable Current Weapon
-        _weaponModule.gameObject.SetActive(false);
+        if (_weaponModule != null)
+            _weaponModule.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
-
 
 
     public override void OnLeftClick()
@@ -111,7 +127,8 @@ public class ModularFirearm : WeaponBehaviour
 
 
         if (_weaponAmmoComponent.isEmpty) return;
-        _fullBodyAnimatorHandler.SetFire();
+        if (_weaponModule != null)
+            _fullBodyAnimatorHandler.SetFire();
     }
 
     public override void Reload()
@@ -140,7 +157,8 @@ public class ModularFirearm : WeaponBehaviour
                 }
             }
 
-            _fullBodyAnimatorHandler.SetReload();
+            if (_weaponModule != null)
+                _fullBodyAnimatorHandler.SetReload();
         }
   
     }

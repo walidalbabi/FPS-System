@@ -62,6 +62,13 @@ public class MeleeWeapon : PlayerItem
             _weaponModule.gameObject.SetActive(true);
             _weaponModule.transform.localPosition = Vector3.zero;
         }
+
+        if (_fullBodyAnimatorHandler != null)
+        {
+            if (_thirdPersonAnimatorOverride != null)
+                _fullBodyAnimatorHandler.thirdPersonAnimator.runtimeAnimatorController = _thirdPersonAnimatorOverride;
+            else Debug.LogError("No Animator is selected for the current player item");
+        }
     }
 
     /// <summary>

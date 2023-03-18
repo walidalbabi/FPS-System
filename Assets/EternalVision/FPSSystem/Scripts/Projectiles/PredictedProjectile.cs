@@ -1,3 +1,4 @@
+using EternalVision.FPS;
 using FishNet;
 using System.Collections;
 using System.Collections.Generic;
@@ -90,7 +91,7 @@ public class PredictedProjectile : Projectile
          * insignifcant and will not affect gameplay. */
 
         _surface = collision.gameObject.GetComponent<SurfaceIdentifier>();
-        var hitBox = collision.gameObject.GetComponent<Hitbox>();
+        var hitBox = collision.gameObject.GetComponent<I_Hitbox>();
  
 
         //If client show visual effects, play impact audio.

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 296764289477407465}
   - component: {fileID: 296764289477407462}
   - component: {fileID: 6260341065731321513}
+  - component: {fileID: 887333522}
   m_Layer: 25
   m_Name: RotationalDoor
   m_TagString: Untagged
@@ -89,7 +90,7 @@ MonoBehaviour:
   _isGlobal: 0
   _defaultDespawnType: 0
   NetworkObserver: {fileID: 0}
-  <PrefabId>k__BackingField: 2
+  <PrefabId>k__BackingField: 1
   _scenePathHash: 2092241211
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 664101929058033776
@@ -100,6 +101,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!208 &887333522
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 296764289477407463}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.843786, y: 1.294284, z: 0.035}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.7737833, y: 1.313133, z: -0.06}
+  m_TimeToStationary: 0.5
 --- !u!1 &296764290722167028
 GameObject:
   m_ObjectHideFlags: 0

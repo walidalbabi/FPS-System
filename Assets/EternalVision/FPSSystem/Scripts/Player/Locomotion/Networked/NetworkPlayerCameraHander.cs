@@ -15,14 +15,14 @@ public class NetworkPlayerCameraHander : MainCameraHandler
         _timeManager = InstanceFinder.TimeManager;
 
         if (_timeManager != null)
-            _timeManager.OnLateUpdate += TimeManager_OnLateUpdate;
+            _timeManager.OnUpdate += TimeManager_OnLateUpdate;
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
         if (_timeManager != null)
-            _timeManager.OnLateUpdate -= TimeManager_OnLateUpdate;
+            _timeManager.OnUpdate -= TimeManager_OnLateUpdate;
     }
 
 

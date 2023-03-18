@@ -81,15 +81,20 @@ public class NetworkMovementHandler : PlayerMovements
         else if (_localPlayerActionData.Ownership.isServer || GameManager.instance.networkContext.Ownership.isServer)
         {
             Replicate(default, true);
-            ReconcileData rd = new ReconcileData()
+            if (base.TimeManager.Tick % 3 == 0)
             {
-                position = transform.position,
-                moveSpeed = _currentMoveSpeed,
-                verticalVelocity = _currentVerticalVelocity,
-                stamina = _currentStamina,
-                movementInputs = _movementInputs
-            };
-            Reconcile(rd, true);
+                ReconcileData rd = new ReconcileData()
+                {
+                    position = transform.position,
+                    moveSpeed = _currentMoveSpeed,
+                    verticalVelocity = _currentVerticalVelocity,
+                    stamina = _currentStamina,
+                    movementInputs = _movementInputs
+                };
+
+                //Build reconcile. 
+                Reconcile(rd, true);
+            }
         }
     }
 
@@ -270,7 +275,7 @@ public class NetworkMovementHandler : PlayerMovements
         _localPlayerActionData.onLadder = true;
         _playerInventoryHandler.HostlerItem();
 
-        StartCoroutine(LadderTransition(true, startPos, rotation));
+        StartCoroutine(LadderTransition(true, startPos, rotation, 4f));
 
         ToogleSpeed(true, true, base.IsServer);
     }
@@ -360,12 +365,11 @@ public class NetworkMovementHandler : PlayerMovements
 
     private void AnimatedExitLadderAction(Vector3 forwardDirection, Vector3 targetPos)
     {
-        _playerInventoryHandler.UnhostlerItem();
 
         _fullBodyAnimatorHandler.SetOnLadder(false);
         _fullBodyAnimatorHandler.PlayLadderExit(true);
 
-        StartCoroutine(LadderTransition(false, targetPos, forwardDirection));
+        StartCoroutine(LadderTransition(false, targetPos, forwardDirection, 1f));
     }
 
     public override void PlayLandSound(bool isFallWithDamage)

@@ -173,13 +173,13 @@ public abstract class PlayerInventoryHandler : NetworkBehaviour
 
     private void SetItemNeeds()
     {
-        if (GameManager.instance.networkContext.Ownership.isOwner)
-        {
+     //   if (GameManager.instance.networkContext.Ownership.isOwner)
+     //   {
                 if (GetCurrentEquiped() != null)
                     GetCurrentEquiped().SetWeaponComponentsNeeds(_localPlayerData.Ownership, _playerMovements);
 
-        }
-        else Debug.Log("failed to set weapon aim");
+     //   }
+    //    else Debug.Log("failed to set weapon aim");
     }
 
     public virtual void HostlerItem()

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using FishNet.Object;
+using EternalVision.FPS;
 
 public class FirearmHitscan : FirearmShootCompoment
 {
@@ -145,7 +146,7 @@ public class FirearmHitscan : FirearmShootCompoment
   
         if (hit.collider == null) return;
 
-        Hitbox hitbox = hit.collider.GetComponent<Hitbox>();
+        I_Hitbox hitbox = hit.collider.GetComponent<I_Hitbox>();
         if (hitbox != null)
         {
             Event_OnHitTarget(_currentWeapon);

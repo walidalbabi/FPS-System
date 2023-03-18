@@ -54,14 +54,12 @@ public abstract class PlayerMovements : NetworkBehaviour
     //Private Members
     private Vector3 _lookDirection;
     private Vector3 _externalForces;
-    protected Vector2 _movementInputs;
     private bool _wasFalling;
     private bool _wasGrounded;
     private bool _isGrounded;
     private float _startFallPos;
     private float _fallingTime;
     private Coroutine _crouchCoroutine;
-    public LadderScript _currentLadder;
 
     private bool _isFalling { get { return !_isGrounded && _characterController.velocity.y < 0; } }
 
@@ -74,6 +72,7 @@ public abstract class PlayerMovements : NetworkBehaviour
 
     //Protected Members
     protected Vector3 _currentVerticalVelocity;
+    protected Vector2 _movementInputs;
     protected float _pitch;
     protected float _yaw;
     protected float _currentMoveSpeed;
@@ -82,7 +81,7 @@ public abstract class PlayerMovements : NetworkBehaviour
     protected bool _canRunAfterStamina;
     protected float _defaultPlayerHeight;
     protected float _defaultCharacterControllerRadius;
-
+    protected LadderScript _currentLadder;
 
 
     //Public
@@ -241,12 +240,12 @@ public abstract class PlayerMovements : NetworkBehaviour
         if (!CanLook()) return;
 
         float delta = time;
-        _pitch += viewInputs.y * delta * _pitchSpeed;
+        _pitch += viewInputs.y * _pitchSpeed;
         _pitch = Mathf.Clamp(_pitch, -90f, 90f);
    
-        _yaw += viewInputs.x * delta * _yawSpeed;
+        _yaw += viewInputs.x * _yawSpeed;
 
-        transform.Rotate(0f, viewInputs.x * delta * _yawSpeed, 0f);
+        transform.Rotate(0f, viewInputs.x * _yawSpeed, 0f);
 
         _lookDirection = new Vector3(_pitch, transform.eulerAngles.y, transform.eulerAngles.z);
 
@@ -264,7 +263,7 @@ public abstract class PlayerMovements : NetworkBehaviour
                 OnPlayerJump();
             }
 
-            _currentVerticalVelocity = new Vector3(0f, jumpForce,0f) + transform.forward * 3f;
+            _currentVerticalVelocity = new Vector3(0f, jumpForce,0f) + transform.forward * (_currentMoveSpeed / 2f);
         }
     }
 
@@ -511,7 +510,7 @@ public abstract class PlayerMovements : NetworkBehaviour
         _fullBodyAnimatorHandler.SetOnLadder(true);
         _localPlayerActionData.onLadder = true;
 
-        StartCoroutine(LadderTransition(true, startPos, forwardDirection));
+        StartCoroutine(LadderTransition(true, startPos, forwardDirection, 4f));
 
     }
 
@@ -540,7 +539,7 @@ public abstract class PlayerMovements : NetworkBehaviour
         _fullBodyAnimatorHandler.SetOnLadder(false);
         _fullBodyAnimatorHandler.PlayLadderExit(true);
 
-        StartCoroutine(LadderTransition(false, targetPos, forwardDirection));
+        StartCoroutine(LadderTransition(false, targetPos, forwardDirection, 1f));
     }
 
 
@@ -551,7 +550,7 @@ public abstract class PlayerMovements : NetworkBehaviour
     /// <param name="targetPos"></param>
     /// <param name="targetDir"></param>
     /// <returns></returns>
-    public virtual IEnumerator LadderTransition(bool state, Vector3 targetPos, Vector3 targetDir)
+    public virtual IEnumerator LadderTransition(bool state, Vector3 targetPos, Vector3 targetDir , float speed)
     {
         _characterController.enabled = false;
 
@@ -573,7 +572,7 @@ public abstract class PlayerMovements : NetworkBehaviour
             transform.forward = targetDir;
             yield return null;
 
-            time += Time.deltaTime * 3f;
+            time += Time.deltaTime * speed;
         }
 
         _fullBodyAnimatorHandler.SetLadderStartTransition(false);
@@ -591,6 +590,8 @@ public abstract class PlayerMovements : NetworkBehaviour
             {
                 _currentLadder = null;
             }
+
+            _playerInventoryHandler.UnhostlerItem();
         }
     }
 
@@ -606,6 +607,7 @@ public abstract class PlayerMovements : NetworkBehaviour
         if (!_canRunAfterStamina) return false;
         if (_currentStamina <= 0f) return false;
         if (_localPlayerActionData.onLadder) return false;
+        if (_localPlayerActionData.isCrouch) return false;
 
         return true;
     }

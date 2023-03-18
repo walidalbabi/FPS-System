@@ -1,3 +1,4 @@
+using EternalVision.FPS;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -96,6 +97,11 @@ public class PlayerHealth : NetworkBehaviour
     public virtual void Health_OnHit(Hitbox hitbox, int damage, GameObject playerDealer)
     {
         RemoveHealth(damage, hitbox.Multiplier);
+
+        if (base.IsOwner)
+        {
+            Debug.Log("<color=cyan> Player Damaged : </color> " + damage * hitbox.Multiplier);
+        }
     }
 
     /// <summary>

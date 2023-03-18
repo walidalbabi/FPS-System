@@ -30,15 +30,14 @@ public class IKControl : NetworkBehaviour
 
     private void LateUpdate()
     {
+        if (_localPlayerData != null)
+            CheckForLocalActionsData();
+
+
         if (!base.IsOwner) return;
 
         Ray ray = Camera.main.ScreenPointToRay(_screeCenterPoint);
         _aimTarget.transform.position = ray.origin + ray.direction;
-
-
-        if (_localPlayerData == null) return;
-
-        CheckForLocalActionsData();
     }
 
 

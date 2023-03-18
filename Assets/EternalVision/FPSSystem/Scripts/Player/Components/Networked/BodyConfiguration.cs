@@ -59,20 +59,20 @@ public class BodyConfiguration : NetworkBehaviour
     {
         if (isOwner)
         {
-            foreach (var child in fpHand.GetComponentsInChildren<Transform>())
-            {
-                child.gameObject.layer = LayerMask.NameToLayer(_localPlayerLayer);
-            }
+            //foreach (var child in fpHand.GetComponentsInChildren<Transform>())
+            //{
+            //    child.gameObject.layer = LayerMask.NameToLayer(_localPlayerLayer);
+            //}
             fullBodyWeaponHandler.gameObject.SetActive(false);
             fullBodyMeshRender.gameObject.layer = LayerMask.NameToLayer(_remotePlayerLayer);
-            gameObject.layer = LayerMask.NameToLayer(_remotePlayerLayer);
+            gameObject.layer = LayerMask.NameToLayer(_playerController);
         }
         else
         {
-            foreach (var child in fpHand.GetComponentsInChildren<Transform>())
-            {
-                child.gameObject.layer = LayerMask.NameToLayer(_remotePlayerLayer);
-            }
+            //foreach (var child in fpHand.GetComponentsInChildren<Transform>())
+            //{
+            //    child.gameObject.layer = LayerMask.NameToLayer(_remotePlayerLayer);
+            //}
             fullBodyWeaponHandler.gameObject.SetActive(true);
             fullBodyMeshRender.gameObject.layer = 0;
             gameObject.layer = LayerMask.NameToLayer(_playerController);

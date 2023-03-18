@@ -709,7 +709,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: FISHNET;FISHNET_PRO
+    Standalone: FISHNET;FISHNET_PRO;ENABLE_UNITYMESHSIMPLIFIER
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

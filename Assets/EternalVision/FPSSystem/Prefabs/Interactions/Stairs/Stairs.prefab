@@ -1475,7 +1475,7 @@ MonoBehaviour:
   _isGlobal: 0
   _defaultDespawnType: 0
   NetworkObserver: {fileID: 0}
-  <PrefabId>k__BackingField: -1
+  <PrefabId>k__BackingField: 3
   _scenePathHash: 2092241211
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 1695520901228815443
@@ -1483,6 +1483,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 9172532577079777084}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

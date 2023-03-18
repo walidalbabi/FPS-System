@@ -805,8 +805,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speed: 5
-  _offsetPos: {x: 0.27, y: 0, z: -0.27}
-  _offsetRot: {x: 14.08, y: -23.01, z: 7.51}
+  _offsetPos: {x: 0.38, y: -0.01, z: -0.2}
+  _offsetRot: {x: 15.4, y: -34.56, z: 8.5}
   _isRunning: 0
 --- !u!1 &6178107810918261766
 GameObject:
@@ -1045,7 +1045,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85a917ffd9fd91e4ca11371a4dea7fc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 6
+  _componentIndexCache: 7
   _addedNetworkObject: {fileID: -3228741281147368992}
   _networkObjectCache: {fileID: -3228741281147368992}
   _crosshairTansform: {fileID: 5515250795061560320}
@@ -1223,7 +1223,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8966676015069329755}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.034, y: 1.605, z: -0.264}
+  m_LocalPosition: {x: -0.034, y: 1.659, z: -0.065}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1449,6 +1449,7 @@ GameObject:
   - component: {fileID: 9001123829449841626}
   - component: {fileID: 2966723968509645015}
   - component: {fileID: 6076086674897200036}
+  - component: {fileID: 6875148197476995333}
   - component: {fileID: -3228741281147368992}
   m_Layer: 0
   m_Name: Firearm_AKM
@@ -1490,15 +1491,29 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: -3228741281147368992}
   _networkObjectCache: {fileID: -3228741281147368992}
   currentItemType: 0
-  weaponOffset: {x: 0, y: -1.63, z: 0.33}
+  weaponOffset: {x: 0, y: -1.63, z: 0.27}
+  armsOffset:
+    startLocalPos: {x: 0, y: -0.09, z: 1.51}
+    upOffset: {x: 0.11, y: 0.46, z: -0.28}
+    downOffset: {x: -0.15, y: 0.32, z: 0.17}
+    crouchOffset: {x: 0.14, y: -0.29, z: -0.48}
+    runOffset: {x: 0, y: -0.25, z: -0.09}
+    startConstrainstValue: {x: -43.9, y: -22.1, z: 31.35}
+    upOffsetConstraints: {x: 9.86, y: 72.6, z: 16}
+    downOffsetConstraints: {x: -7.5, y: 4, z: 44.2}
+    crouchOffsetConstraints: {x: 28.2, y: 17.6, z: 21.9}
+    runOffsetConstraints: {x: 33.01, y: 14.9, z: 22.01}
+  arms:
+  - {fileID: 8966676016819621449}
+  - {fileID: 8966676016355913070}
   animators:
   - {fileID: 0}
   - {fileID: 0}
-  _thirdPersonAnimatorOverride: {fileID: 0}
+  _thirdPersonAnimatorOverride: {fileID: 22100000, guid: 25688ff13c64ba447812601034577e03, type: 2}
   _cameraView: {fileID: 8966676015069329752}
   weaponShootType: 0
   bulletUIImage: {fileID: 21300000, guid: c00e682cd98dac441a80f0733cd0c8dd, type: 3}
-  _weaponThirdPersonModule: {fileID: 8733740991477687911, guid: 175637605867d8d48bf251668b949e4f, type: 3}
+  _weaponThirdPersonModulePrefab: {fileID: 0}
 --- !u!114 &6562043986054566920
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1672,6 +1687,61 @@ MonoBehaviour:
   _travelLimit: {x: 0.00025, y: 0.025, z: 0}
   _bobLimit: {x: 0.01, y: 0.01, z: 0.01}
   _bobMultiplier: {x: 0.2, y: 0.2, z: 0.2}
+--- !u!114 &6875148197476995333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8966676015406549532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e1e432da64a98419a32b4bdd23cb15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 6
+  _addedNetworkObject: {fileID: -3228741281147368992}
+  _networkObjectCache: {fileID: -3228741281147368992}
+  m_Animator: {fileID: 8966676016130407610}
+  m_HandMatching: 3
+  m_FingerMatching: 1
+  m_RigType: 0
+  m_LeftHandIkTarget: {fileID: 8966676016530585322}
+  m_RightHandIkTarget: {fileID: 8966676016538319396}
+  m_FingerBones:
+  - {fileID: 8966676016233533257}
+  - {fileID: 8966676015181457237}
+  - {fileID: 8966676015769080321}
+  - {fileID: 8966676015670602412}
+  - {fileID: 8966676015565794023}
+  - {fileID: 8966676017069884931}
+  - {fileID: 8966676017009955789}
+  - {fileID: 8966676016718766495}
+  - {fileID: 8966676017106215276}
+  - {fileID: 8966676015800634825}
+  - {fileID: 8966676015650210557}
+  - {fileID: 8966676016558925171}
+  - {fileID: 8966676015413104193}
+  - {fileID: 8966676016523966588}
+  - {fileID: 8966676015945409419}
+  - {fileID: 8966676015324243540}
+  - {fileID: 8966676015871610688}
+  - {fileID: 8966676016286185989}
+  - {fileID: 8966676015302744239}
+  - {fileID: 8966676015467576781}
+  - {fileID: 8966676015629850709}
+  - {fileID: 8966676016080891759}
+  - {fileID: 8966676015670702984}
+  - {fileID: 8966676016841878621}
+  - {fileID: 8966676016398042771}
+  - {fileID: 8966676015485215451}
+  - {fileID: 8966676017081001917}
+  - {fileID: 8966676016247368811}
+  - {fileID: 8966676016820229997}
+  - {fileID: 8966676016022555211}
+  m_Offsets: {fileID: 11400000, guid: 953ac283fb3f1bb4bb80ed1be31799ca, type: 2}
+  expandLeftFingers: 0
+  expandRightFingers: 1
 --- !u!114 &-3228741281147368992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1693,6 +1763,7 @@ MonoBehaviour:
   - {fileID: 4164375987975858414}
   - {fileID: 8436247803803530771}
   - {fileID: 6186567969710485650}
+  - {fileID: 6875148197476995333}
   - {fileID: 7440868645652165048}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
@@ -1700,7 +1771,7 @@ MonoBehaviour:
   _isGlobal: 0
   _defaultDespawnType: 0
   NetworkObserver: {fileID: 0}
-  <PrefabId>k__BackingField: 12
+  <PrefabId>k__BackingField: 13
   _scenePathHash: 0
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13798295871479886512

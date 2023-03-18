@@ -20,16 +20,21 @@ public abstract class PlayerItem : NetworkBehaviour
 
     public ItemType currentItemType;
     public Vector3 weaponOffset;
+    public ArmsOffset armsOffset;
+    public GameObject[] arms;
 
     [HideInInspector] public Animator[] animators;
 
 
-    [SerializeField] private RuntimeAnimatorController _thirdPersonAnimatorOverride;
+    [SerializeField] protected RuntimeAnimatorController _thirdPersonAnimatorOverride;
 
     protected PlayerInventoryHandler _playerInventoryHandler;
     protected NetworkPlayerFullBodyAnimationHandler _fullBodyAnimatorHandler;
     protected ItemSwayMotion _itemSwayMotion;
     protected ItemBobbingMotion _itemBobbingMotion;
+
+
+    public PlayerInventoryHandler playerInventoryHandler { get { return _playerInventoryHandler; } }
 
     public virtual void OnRightClick() { }
     public virtual void OnLeftClick() { }
@@ -44,7 +49,6 @@ public abstract class PlayerItem : NetworkBehaviour
     public void Set_FullBodyAnimatorHandler(NetworkPlayerFullBodyAnimationHandler component)
     {
         _fullBodyAnimatorHandler = component;
-      //  _fullBodyAnimatorHandler.thirdPersonAnimator.runtimeAnimatorController = _thirdPersonAnimatorOverride;
     }
     public virtual void Set_PlayerInventoryHandler(PlayerInventoryHandler component)
     {
@@ -53,6 +57,24 @@ public abstract class PlayerItem : NetworkBehaviour
 
     public virtual void SetWeaponComponentsNeeds(NetworkOwnership ownership, PlayerMovements _playerMovements)
     {
+    }
+
+    public void DisableArmsMesh()
+    {
+        if (base.IsOwner)
+        {
+            foreach (var arm in arms)
+            {
+                arm.SetActive(true);
+            }
+        }
+        else
+        {
+            foreach (var arm in arms)
+            {
+                arm.SetActive(false);
+            }
+        }
     }
 
     public LocalPlayerData GetLocalPlayerDataOfThisItem()

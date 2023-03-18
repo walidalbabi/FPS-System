@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 4526078591032441224}
   - component: {fileID: 7795940913516897734}
   - component: {fileID: 4526078591032441225}
+  - component: {fileID: 5980607181372097068}
   m_Layer: 25
   m_Name: SlidedDoor
   m_TagString: Untagged
@@ -158,9 +159,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 317de27e008c288479e34dcd2025db41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 4526078591032441225}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4526078591032441225}
   _speed: 1.2
   forwardDirection: 0
   _slideDirection: {x: 1, y: 0, z: 0}
@@ -193,14 +194,14 @@ MonoBehaviour:
   <IsNested>k__BackingField: 0
   <ComponentIndex>k__BackingField: 0
   _networkBehaviours:
-  - {fileID: 0}
+  - {fileID: 4526078591032441224}
   <ParentNetworkObject>k__BackingField: {fileID: 0}
   <ChildNetworkObjects>k__BackingField: []
   _isNetworked: 1
   _isGlobal: 0
   _defaultDespawnType: 0
   NetworkObserver: {fileID: 0}
-  <PrefabId>k__BackingField: 2
+  <PrefabId>k__BackingField: 13
   _scenePathHash: 2092241211
   <SceneId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 12860945813275828652
@@ -209,5 +210,23 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 4526078591032441225}
   - {fileID: 0}
+--- !u!208 &5980607181372097068
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7795940913516897735}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.843786, y: 1.294284, z: 0.035}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.7737833, y: 1.313133, z: -0.06}
+  m_TimeToStationary: 0.5

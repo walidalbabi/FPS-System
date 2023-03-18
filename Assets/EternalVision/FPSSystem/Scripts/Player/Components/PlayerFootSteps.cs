@@ -80,7 +80,6 @@ public class PlayerFootSteps : NetworkBehaviour
 
     public void PlayFootsteps(string state)
     {
-        Debug.Log(state);
         AudioClip audioClip = GetCurrentSurfaceAudio();
         if (audioClip == null) return;
 

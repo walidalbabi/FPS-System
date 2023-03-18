@@ -1,4 +1,5 @@
 
+using EternalVision.FPS;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -73,6 +74,8 @@ public class NetworkAgentHealth : PlayerHealth
 
         if (GameManager.instance.networkContext.Ownership.isServer)
             ObserversRemoveHealth(value, _oldHealth);
+
+        Debug.Log("<color=cyan> Player Health : </color> " + CurrentHealth);
     }
 
     public override void HealthDepleted()
